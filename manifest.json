@@ -1,0 +1,31 @@
+{
+  "name": "CAM Statement Check",
+  "short_name": "cam-statement-check",
+  "slug": "cam-statement-check",
+  "description": "Recheck a landlord's year-end CAM / operating-expense reconciliation against your own lease terms — share, gross-up, management fee, caps, exclusions — and get a ready-to-edit request for supporting documents.",
+  "url": "https://greattombproductions.github.io/cam-statement-check/",
+  "repo": "https://github.com/GreatTombProductions/cam-statement-check",
+  "github": "https://github.com/GreatTombProductions/cam-statement-check",
+  "data_source": "None — the tenant's own lease terms and statement lines; practitioner background guides cited on the sources page",
+  "data_url": "https://greattombproductions.github.io/cam-statement-check/methodology.html",
+  "records": "0 external records; user-entered lease terms and statement lines",
+  "detail": "Static client-side checker for small commercial tenants. Each statement line is marked recoverable, excluded by the lease (with the cited section), or not sure; uncertain lines produce a low/high range instead of a guess. Recomputes the pool with linear gross-up of variable lines (never grossed down), the management fee against a tenant-selected fee base, the share (RSF ratio or fixed %, compared with the printed share), net / base-year / expense-stop structures, and controllable-expense caps in three explicit formulas (year-over-year, compounding from base, simple from base). Verdict above / within / matches / below the range; line-by-line questions; an editable request for supporting documents that can be copied, downloaded with inputs and results, or printed. Missing inputs stop the calculation — nothing defaults to zero.",
+  "asymmetry": "Landlords and property managers author the year-end reconciliation; institutional tenants hire lease auditors, while a small-business operator handed the same statement can neither pay with confidence nor contest with evidence. Whether caps were applied, exclusions honored and the share computed per the lease is determinable from documents the tenant already holds — once the arithmetic is laid out.",
+  "pipeline_note": "No pipeline: pure static calculator. engine.js (pure functions) with 11 hand-computed test cases; Playwright smoke (exact example figures, request + notes download, escaping, print, 390px mobile, zero third-party requests) run on the staged deploy and the live URL.",
+  "search_modes": [
+    "CAM reconciliation check",
+    "operating expense reconciliation",
+    "commercial tenant CAM audit",
+    "management fee cap",
+    "gross-up check"
+  ],
+  "released_date": "2026-10-06",
+  "status": "released",
+  "deploy_branch": "gh-pages",
+  "deploy_method": "static",
+  "feedback_categories": [
+    "methodology",
+    "bug",
+    "feature"
+  ]
+}

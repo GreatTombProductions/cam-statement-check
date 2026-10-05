@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAM Statement Check — Recheck Your Year-End Operating-Expense Reconciliation</title>
+<meta name="description" content="For small commercial tenants: recompute your landlord's year-end CAM / operating-expense reconciliation from your own lease terms — share math, gross-up, management fee, caps and exclusions — and get a ready-to-edit request for supporting documents. Nothing leaves your browser.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#results">Skip to results</a>
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">For small commercial tenants holding a year-end CAM or operating-expense statement</p>
+    <h1>CAM Statement Check</h1>
+    <p class="lede">Your landlord sent the year-end reconciliation and a balance due. Was it computed the way <strong>your lease</strong> says? Enter the lease's cost terms and the statement's lines. This page recomputes your share, applies your caps and exclusions, and shows where the statement and the lease disagree. It then drafts a request for the documents behind each questioned line.</p>
+    <p class="privacy">No accounts. No uploads. No tracking. Every calculation happens in your browser, and nothing you type leaves this page. <a href="methodology.html">How it computes</a> · <a href="sources.html">Sources and further help</a></p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="section-head">
+    <h2>1. Your lease's cost terms</h2>
+    <div class="head-actions">
+      <button id="btnExample" type="button" class="btn ghost">Load example</button>
+      <button id="btnClear" type="button" class="btn ghost">Clear all</button>
+    </div>
+  </div>
+  <p class="hint">Use your lease's own numbers and definitions. Where the lease is silent, leave the option off. This page will not guess a term your lease does not contain.</p>
+
+  <section class="card" aria-label="Lease terms">
+    <fieldset class="field">
+      <legend class="label-text">How does your lease pass expenses through?</legend>
+      <label class="choice"><input type="radio" name="structure" value="net" checked> Net / NNN — I pay my share of all recoverable expenses</label>
+      <label class="choice"><input type="radio" name="structure" value="base_year"> Base year — I pay my share of increases over a base year</label>
+      <label class="choice"><input type="radio" name="structure" value="expense_stop"> Expense stop — I pay my share above a per-square-foot stop</label>
+    </fieldset>
+    <div class="grid">
+      <fieldset class="field">
+        <legend class="label-text">How is your share defined?</legend>
+        <label class="choice"><input type="radio" name="shareBasis" value="rsf" checked> My square feet ÷ building (or center) square feet</label>
+        <label class="choice"><input type="radio" name="shareBasis" value="fixed"> A fixed percentage stated in the lease</label>
+      </fieldset>
+      <div class="field-group">
+        <label class="field" data-show="rsf"><span class="label-text">My rentable square feet</span><input id="tenantRsf" type="number" min="0" step="1" inputmode="decimal"></label>
+        <label class="field" data-show="rsf stop"><span class="label-text">Building / center square feet (the lease's divisor)</span><input id="denomRsf" type="number" min="0" step="1" inputmode="decimal"></label>
+        <label class="field" data-show="fixed"><span class="label-text">Share stated in the lease</span><span class="input-wrap"><input id="fixedPct" type="number" min="0" max="100" step="0.001" inputmode="decimal"><span class="suffix">%</span></span></label>
+        <label class="field" data-show="base_year"><span class="label-text">Base-year expense total (whole building, $)</span><input id="baseYearPool" type="number" min="0" step="0.01" inputmode="decimal"></label>
+        <label class="field" data-show="expense_stop"><span class="label-text">Expense stop</span><span class="input-wrap"><input id="stopPsf" type="number" min="0" step="0.01" inputmode="decimal"><span class="suffix">$ / SF</span></span></label>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="field-group">
+        <label class="field"><span class="label-text">Gross-up of variable expenses</span>
+          <select id="grossUpMode">
+            <option value="none">My lease has no gross-up clause</option>
+            <option value="recompute">Gross up the actual amounts I enter</option>
+            <option value="already">The statement's amounts are already grossed up</option>
+          </select>
+          <span class="field-note">A gross-up raises costs that vary with occupancy, such as janitorial work or utilities, to what they would be at the occupancy your lease names. Fixed costs such as taxes and insurance are not grossed up.</span>
+        </label>
+        <label class="field" data-show="gu-recompute"><span class="label-text">Gross-up occupancy named in the lease</span><span class="input-wrap"><input id="guTarget" type="number" min="0" max="100" step="0.1" inputmode="decimal"><span class="suffix">%</span></span></label>
+        <label class="field" data-show="gu-recompute"><span class="label-text">Building's average occupancy that year</span><span class="input-wrap"><input id="guActual" type="number" min="0" max="100" step="0.1" inputmode="decimal"><span class="suffix">%</span></span></label>
+      </div>
+      <div class="field-group">
+        <label class="choice"><input id="feeEnabled" type="checkbox"> My lease limits the management / administrative fee</label>
+        <label class="field" data-show="fee"><span class="label-text">Fee allowed, as a percentage of the expenses ticked "in fee base" below</span><span class="input-wrap"><input id="feeCap" type="number" min="0" max="100" step="0.01" inputmode="decimal"><span class="suffix">%</span></span></label>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="field-group">
+        <label class="choice"><input id="capEnabled" type="checkbox"> My lease caps increases in controllable expenses</label>
+        <div data-show="cap">
+          <label class="field"><span class="label-text">How the cap is measured</span>
+            <select id="capMethod">
+              <option value="yoy">Each year: last year's allowable amount + the cap %</option>
+              <option value="compound">From a base year, compounding: base × (1 + cap %)<sup>years</sup></option>
+              <option value="simple">From a base year, not compounding: base × (1 + cap % × years)</option>
+            </select>
+            <span class="field-note">Leases describe caps as "cumulative" or "non-cumulative" and "compounding" or not, and the words are used inconsistently. Pick the formula your lease's wording produces.</span>
+          </label>
+          <label class="field"><span class="label-text">Cap percentage per year</span><span class="input-wrap"><input id="capRate" type="number" min="0" max="100" step="0.01" inputmode="decimal"><span class="suffix">%</span></span></label>
+          <label class="field" data-show="cap-yoy"><span class="label-text">Last year's allowable controllable amount — your share ($)</span><input id="capPrior" type="number" min="0" step="0.01" inputmode="decimal"></label>
+          <label class="field" data-show="cap-base"><span class="label-text">Base-year controllable amount — your share ($)</span><input id="capBase" type="number" min="0" step="0.01" inputmode="decimal"></label>
+          <label class="field" data-show="cap-base"><span class="label-text">Years since the cap's base year</span><input id="capYears" type="number" min="1" max="50" step="1" inputmode="numeric"></label>
+          <label class="choice"><input id="capIncludesFee" type="checkbox"> The management fee counts as controllable</label>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field"><span class="label-text">Your lease's review / audit clause (optional, copied into the request)</span><textarea id="auditClause" rows="3" placeholder="e.g. Section 6.7: Tenant may object in writing within 90 days after receiving the annual statement."></textarea>
+        <span class="field-note">Many leases give a short, strict window to question a statement. This page does not calculate deadlines. Read your clause for the start date, the method of notice and the address.</span></label>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-head"><h2>2. The landlord's statement</h2></div>
+  <p class="hint">Enter each expense line at its <strong>whole-building amount</strong>, the way most statements list them before your share is applied. For each line, say whether your lease lets the landlord recover it. If you aren't sure, choose "Not sure". The result will then show both possibilities instead of guessing.</p>
+  <section class="card" aria-label="Statement lines">
+    <div class="table-wrap"><table class="lines" id="lineTable">
+      <thead><tr><th>Line on the statement</th><th>Amount ($)</th><th>Type</th><th>Under my lease</th><th>Lease section</th><th title="Varies with occupancy">Variable</th><th title="Counts toward the controllable-expense cap">Controllable</th><th title="Included in the base the management fee is computed on">In fee base</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <button id="btnAddLine" type="button" class="btn ghost">+ Add a line</button>
+    <details class="exclusions">
+      <summary>Categories leases often exclude (check your own lease)</summary>
+      <p>Only your lease decides what is recoverable. These categories show up in exclusion lists often enough to be worth checking against yours:</p>
+      <ul>
+        <li>Capital improvements or replacements (some leases allow them only if amortized over their useful life)</li>
+        <li>Leasing commissions, advertising for vacant space, and tenant improvements for other tenants</li>
+        <li>The landlord's mortgage interest, principal, ground rent and depreciation</li>
+        <li>Costs repaid by insurance, warranties or other tenants</li>
+        <li>Repairing original construction defects</li>
+        <li>Legal fees from disputes with other tenants or lenders</li>
+        <li>Fines and penalties caused by the landlord's violations</li>
+        <li>Salaries of personnel above the building manager level</li>
+        <li>Reserves for future spending, where the lease doesn't permit them</li>
+      </ul>
+    </details>
+    <div class="grid totals">
+      <label class="field"><span class="label-text">Your share percentage as printed on the statement (optional)</span><span class="input-wrap"><input id="stmtShare" type="number" min="0" max="100" step="0.001" inputmode="decimal"><span class="suffix">%</span></span></label>
+      <label class="field"><span class="label-text">Your total share the statement charges for the year ($)</span><input id="stmtCharge" type="number" min="0" step="0.01" inputmode="decimal"></label>
+      <label class="field"><span class="label-text">Estimated monthly payments you made during the year, total ($, optional)</span><input id="stmtPaid" type="number" min="0" step="0.01" inputmode="decimal"></label>
+    </div>
+  </section>
+
+  <section id="results" aria-label="Results" aria-live="polite">
+    <div class="section-head"><h2>3. What the arithmetic shows</h2></div>
+    <div id="resultArea"><p class="hint">Enter your lease terms and the statement, or load the example.</p></div>
+  </section>
+
+  <section id="requestSection" aria-label="Request for supporting documents" hidden>
+    <div class="section-head">
+      <h2>4. Your next step: ask for the backup</h2>
+      <div class="head-actions">
+        <button id="btnCopy" type="button" class="btn ghost">Copy text</button>
+        <button id="btnDownload" type="button" class="btn ghost">Download notes (.txt)</button>
+        <button id="btnPrint" type="button" class="btn primary">Print / save PDF</button>
+      </div>
+    </div>
+    <div class="grid">
+      <label class="field"><span class="label-text">Your business name</span><input id="reqTenant" type="text" autocomplete="organization"></label>
+      <label class="field"><span class="label-text">Premises (suite / unit)</span><input id="reqPremises" type="text"></label>
+      <label class="field"><span class="label-text">Property</span><input id="reqProperty" type="text"></label>
+      <label class="field"><span class="label-text">Statement period</span><input id="reqPeriod" type="text" placeholder="e.g. calendar year 2025"></label>
+    </div>
+    <p class="hint">A starting draft built only from what you entered above. Edit it before sending. It asks for documents and explanations. It doesn't settle anything, and it isn't a formal notice unless your lease says it is.</p>
+    <textarea id="requestText" rows="18" readonly></textarea>
+    <pre id="requestPrint" class="print-only"></pre>
+  </section>
+
+  <section class="notes" aria-label="Before you send anything">
+    <h2>Before you send anything</h2>
+    <ul>
+      <li><strong>This checks arithmetic and the lease terms you enter. It is not legal advice.</strong> It cannot read your lease, see the landlord's invoices, or tell you whether an expense really happened.</li>
+      <li><strong>Follow your lease's notice clause.</strong> It sets how, where and by when an objection or audit request must be delivered. A missed window can make the statement final.</li>
+      <li><strong>Many leases require you to pay while a question is open.</strong> Paying, disputing or asking for an audit is your decision. The numbers here are one input to it.</li>
+      <li><strong>A "Not sure" line is a question, not an overcharge.</strong> The range shows what is at stake. The documents you request settle which end applies.</li>
+      <li><strong>If the amount justifies it</strong>, a lease auditor (often paid from what they recover) or a real-estate attorney can review what this page cannot. <a href="sources.html">Where to find help</a>.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p>CAM Statement Check — a free, static tool. <a href="methodology.html">How it computes</a> · <a href="sources.html">Sources and further help</a></p>
+  </div>
+</footer>
+
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

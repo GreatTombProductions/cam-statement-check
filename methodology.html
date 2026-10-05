@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How it computes — CAM Statement Check</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="wrap">
+<article class="doc">
+<h1>How CAM Statement Check computes</h1>
+<p><a href="index.html">← Back to the checker</a></p>
+<p>Every number comes from the lease terms and statement lines you enter. Nothing is looked up, estimated or filled in. If a required input is missing, the page stops and lists what it needs instead of assuming zero.</p>
+
+<h2>1. Which lines count</h2>
+<p>Each statement line is marked <em>Recoverable</em>, <em>Lease excludes it</em> or <em>Not sure</em>. Excluded lines never count. Not-sure lines are computed both ways: once left out (the low end) and once included (the high end). The result is a range instead of a guess. Only you can read your lease's exclusion list, so the page never decides a line is excluded on its own.</p>
+
+<h2>2. Gross-up (only if your lease has one)</h2>
+<p>Variable lines are raised to the occupancy your lease names. Fixed lines (taxes, insurance and the like) and the fee line are never grossed up.</p>
+<div class="formula">factor = named occupancy ÷ actual average occupancy   (only when actual &lt; named; never below 1)<br>variable line, adjusted = amount × factor</div>
+<p>This is the usual linear gross-up. Some leases define it differently, for example per-expense or with a different occupancy measure. If yours does, its definition wins. If the statement's amounts are already grossed up, choose that option. The page will then not recompute the gross-up and will ask for the actual amounts instead.</p>
+
+<h2>3. Management / administrative fee</h2>
+<p>If your lease limits the fee, the page computes the allowed fee from the lines you tick as "in fee base", after exclusions and gross-up. It counts the lower of the charged fee and the allowed fee.</p>
+<div class="formula">fee base = Σ adjusted amounts of counted lines ticked "in fee base"<br>fee allowed = fee % × fee base<br>fee counted = min(fee charged, fee allowed)</div>
+<p>Leases differ on what the fee is computed on. Taxes, insurance and utilities are often left out of the base. Tick lines to match your lease's wording.</p>
+
+<h2>4. Your share</h2>
+<div class="formula">pool = Σ adjusted counted expense lines + fee counted<br>share = your square feet ÷ the lease's divisor   (or the percentage your lease states)</div>
+<table>
+<tr><th>Lease structure</th><th>Your share before any cap</th></tr>
+<tr><td>Net / NNN</td><td>share × pool</td></tr>
+<tr><td>Base year</td><td>share × max(0, pool − base-year total)</td></tr>
+<tr><td>Expense stop</td><td>share × max(0, pool − stop per SF × divisor square feet)</td></tr>
+</table>
+<p>If you enter the share the statement printed, the page compares it with your lease's definition and flags any gap above 0.005 percentage points. A different divisor is one of the most common sources of disagreement, for example one that leaves out vacant space or large tenants.</p>
+
+<h2>5. Cap on controllable expenses (net leases)</h2>
+<p>Your share of the controllable lines (plus the fee, if you tick that it counts) is limited by the cap. The excess comes off your share.</p>
+<div class="formula">controllable (your share) = share × (Σ adjusted controllable lines [+ fee counted])<br>
+year-over-year:   limit = last year's allowable amount × (1 + r)<br>
+compounding:      limit = base amount × (1 + r)<sup>n</sup><br>
+not compounding:  limit = base amount × (1 + r × n)<br>
+your share = share before cap − max(0, controllable − limit)</div>
+<p>"Cumulative", "non-cumulative" and "compounding" are used inconsistently from lease to lease. That is why the page asks for the formula, not the label. For the year-over-year form, "last year's allowable amount" means the lower of last year's actual controllable charge and last year's cap. Caps are applied only to net leases. With a base-year or expense-stop structure, the page shows the uncapped result and says so.</p>
+
+<h2>6. The verdict</h2>
+<p>The statement's charge is compared with the range (low = Not-sure lines left out, high = included), with a $1 tolerance:</p>
+<ul>
+<li><strong>Above</strong> — higher than the high end. Even counting every uncertain line, the statement exceeds what your lease terms produce.</li>
+<li><strong>Within</strong> — inside the range. Whether it's right depends on the uncertain lines.</li>
+<li><strong>Matches</strong> — equal to your lease terms' result within $1 (no uncertain lines).</li>
+<li><strong>Below</strong> — lower than the low end. Check your entries first.</li>
+</ul>
+<p>"Your percentage of a line" figures (for example, what an excluded line adds) are the share times the line's adjusted amount. Under a base-year or expense-stop lease, the real effect can be smaller if the pool sits near the base or the stop.</p>
+
+<h2>What this does not do</h2>
+<ul>
+<li>It does not verify that expenses happened or were reasonable. Only invoices and the general ledger can show that, which is why the draft asks for them.</li>
+<li>It does not read your lease, decide legal questions, compute deadlines, or tell you to pay or dispute.</li>
+<li>It does not handle amortized capital items, partial-year occupancy, multiple expense pools (for example separate CAM, tax and insurance pools with different shares), or tenant-specific carve-outs. Run each pool separately if your statement splits them.</li>
+<li>It stores nothing. Download your notes if you want to keep them. When you close the page, everything you typed is gone.</li>
+</ul>
+</article>
+</main>
+<footer class="footer"><div class="wrap"><p>CAM Statement Check — <a href="index.html">checker</a> · <a href="sources.html">sources and further help</a></p></div></footer>
+</body>
+</html>
