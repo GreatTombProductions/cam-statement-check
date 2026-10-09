@@ -2,7 +2,7 @@
 """Run the Playwright smoke test.
 
 Modes:
-  default            serve frontend/ locally
+  default            serve frontend/ locally (or this directory, when there is no frontend/)
   SMOKE_SITE=<dir>   serve an assembled deploy directory as-is
   SMOKE_BASE=<url>   test a live URL directly
 """
@@ -33,7 +33,8 @@ def main() -> int:
     if os.environ.get("SMOKE_BASE"):
         run_node(os.environ["SMOKE_BASE"])
         return 0
-    site = Path(os.environ.get("SMOKE_SITE") or PROJECT / "frontend")
+    default = PROJECT / "frontend" if (PROJECT / "frontend").is_dir() else PROJECT
+    site = Path(os.environ.get("SMOKE_SITE") or default)
     server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=site))
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()

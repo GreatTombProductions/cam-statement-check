@@ -25,18 +25,21 @@ No accounts, no uploads, no storage, no tracking, no third-party requests. Every
 
 ## Layout
 
-```
-frontend/  index.html, engine.js (pure reconciliation math), app.js (page), style.css,
-           methodology.html (every formula), sources.html (background + where to get help)
-tests/     test_engine.js (hand-computed cases), browser_smoke.js + run_browser_smoke.py
-```
+- `index.html`, `app.js`, `style.css`: the page
+- `engine.js`: the reconciliation math, with no page code (`check(input)` returns the verdict, range and findings)
+- `methodology.html`: every formula the page uses; `sources.html`: background and where to get help
+- `tests/`: hand-computed engine cases (`tests/test_engine.js`) and a browser smoke test (`tests/browser_smoke.js`, run by `tests/run_browser_smoke.py`)
 
 ## Run the tests
 
+From the repository root:
+
 ```bash
 node tests/test_engine.js
-python3 tests/run_browser_smoke.py   # needs Node + Playwright (Chromium)
+python3 tests/run_browser_smoke.py   # serves this directory and drives the page in headless Chromium
 ```
+
+The browser smoke needs Node with Playwright: `npm install playwright` and `npx playwright install chromium`. Set `SMOKE_BASE` to a URL to test a deployed copy instead.
 
 ## License
 

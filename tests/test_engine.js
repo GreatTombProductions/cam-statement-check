@@ -3,7 +3,11 @@
 "use strict";
 
 const assert = require("assert");
-const E = require("../frontend/engine.js");
+const fs = require("fs");
+const path = require("path");
+// Source layout keeps the site under frontend/; the published repository has it at the root.
+const E = require(["../frontend/engine.js", "../engine.js"]
+  .map((p) => path.join(__dirname, p)).find((p) => fs.existsSync(p)));
 
 let passed = 0;
 function test(name, fn) {
